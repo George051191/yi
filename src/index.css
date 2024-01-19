@@ -1,0 +1,61 @@
+/* ::-webkit-calendar-picker-indicator {
+    color: transparent;
+    opacity: 0;
+    width: 100%;
+}
+ */
+body {
+    margin: 0;
+}
+
+p {
+    margin: 0;
+}
+h1,h2 {
+    margin: 0;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none; 
+}
+
+input[type='number'],
+input[type="number"]:hover,
+input[type="number"]:focus {
+    appearance: none;
+    -moz-appearance: textfield;
+}
+
+.child {
+    margin-left: 45px;
+}
+
+ ::-webkit-scrollbar {
+    width: 5px;
+    background: rgba(255, 255, 255, .5);
+    border-radius: 100px;
+    opacity: .5;
+    display: none;
+}
+
+ ::-webkit-scrollbar-thumb {
+    background: rgb(226, 226, 234);
+    height: 50px;
+    border-radius: 100px;
+    display: none;
+}
+
+::-webkit-calendar-picker-indicator {
+    color: transparent;
+    opacity: 1;
+    background: url('../src//assets//calendar.svg') no-repeat center;
+    background-size: contain;
+    cursor: pointer;
+}
+
+@media screen and (max-width:650px) {
+    .ant-picker-panels {
+        flex-direction: column !important;
+    }
+}
