@@ -544,7 +544,7 @@ const ListOfSkills = styled.ul`
 
 export const InputWithTags: FC<{
   tags: string[];
-  downloadedValues: TSkill[],
+  downloadedValues?: TSkill[],
   currentObjectIndex?: number,
   setTagToArray: (item: string, index: number) => void;
   label: string;
@@ -555,7 +555,7 @@ export const InputWithTags: FC<{
   type: string;
   maxLength: number;
   hasError: boolean;
-  setSkillValue:(skill: string) => void;
+  setSkillValue?:(skill: string) => void;
 }> = memo(({
   tags,
   setTagToArray,
