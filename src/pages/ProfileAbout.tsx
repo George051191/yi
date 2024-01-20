@@ -233,8 +233,25 @@ const ProfileAbout: FC = () => {
                 </Div>
 
               </Details>
-            ))}
 
+            ))}
+            <Details open>
+              <SummaryColored>Достижения</SummaryColored>
+              <StudyList>
+                {data?.achievements?.map((el) => (
+
+                  <StudyListItem>
+                    <Header3>{el.achievement_name}</Header3>
+                    <P>{el.description}</P>
+                    <LinkContainer>
+                      <DocumentIcon />
+                      <LinkForFileLoad download href={el.image}>Документ</LinkForFileLoad>
+                    </LinkContainer>
+                  </StudyListItem>
+
+                ))}
+              </StudyList>
+            </Details>
           </ProfessionsList>
           <ButtonWrapper>
             <UniversalButton

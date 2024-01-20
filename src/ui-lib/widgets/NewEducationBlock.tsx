@@ -47,7 +47,7 @@ const NewEducationBlock: FC<{
   addOption: () => void,
   coursesList: TEducation[],
   nameOfInputForFile: string,
-  deleteFunc: (index: number) => void,
+  deleteFunc: (index: number, pos:number) => void,
   submitEducation: (index: number) => void,
 }> = ({
   onChange,
@@ -69,7 +69,7 @@ const NewEducationBlock: FC<{
           <GridColumnElement>
 
             <BlackDelIcon
-              onClick={(e:any) => { e.preventDefault(); deleteFunc(el.id!); }}
+              onClick={(e:any) => { e.preventDefault(); deleteFunc(el.id!, index); }}
               style={{ position: 'absolute', top: '0px', right: '0px' }} />
             <InputWithNoValidation
               name='educationName'
@@ -86,7 +86,7 @@ const NewEducationBlock: FC<{
               onChange={(e) => onChange(e, index)}
               placeholder='Введите название специальности или курса' />
             <InputBox>
-              <Label htmlFor='educationEnd'>Год окончания обучения</Label>
+              <Label htmlFor='educationEnd'>Дата окончания обучения</Label>
               <CustomDateInput
                 mask={[/\d/, /\d/, '.', /\d/, /\d/, '.', /\d/, /\d/, /\d/, /\d/]}
                 pipe={autoCorrectedDatePipe}

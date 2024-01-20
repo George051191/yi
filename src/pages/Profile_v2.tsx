@@ -11,13 +11,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 import { string } from 'prop-types';
 import {
-  jwt,
   useUpdateUserMutation,
-  useGetCurrentUserQuery,
-  useLazyGetUserByIdQuery,
-  userApi,
-  projectsApi,
-  useGetCurrentUserProjectsQuery,
   useCreateEducationMutation,
   useUpdateEducationMutation,
   useDeleteEducationMutation,
@@ -25,6 +19,9 @@ import {
   useCreateTestMutation,
   useUpdateTestMutation,
   useDeleteTestMutation,
+  useCreateAchieveMutation,
+  useUpdateAchieveMutation,
+  useDeleteAchieveMutation,
 } from '../api/api';
 import NewAvatar from '../ui-lib/widgets/NewAvatars';
 import NewBaseSection from '../ui-lib/widgets/NewBaseSection';
@@ -35,25 +32,20 @@ import {
   BasicInput,
   SocialsInputs,
   DateInput,
-  InputWithNoValidation,
-  BasicTextArea,
-  InputWithTags,
   TextAreaWithNoValidation,
 } from '../ui-lib/FormElements';
 import NewBlockForTests from '../ui-lib/widgets/NewBlockForTests';
 import NewEducationBlock from '../ui-lib/widgets/NewEducationBlock';
-import NewSelectWithPlural from '../ui-lib/widgets/NewSelectWithPlural';
-import { UniversalButton, ButtonWithCross } from '../ui-lib/RestyledButtons';
+import BlockForAchievements from '../ui-lib/widgets/BlockForAchievements';
+import { UniversalButton } from '../ui-lib/RestyledButtons';
 import { Skeleton1 } from '../ui-lib/widgets/Skeleton';
 import avatarDefault from '../assets/dedaultAvaImg.png';
-import { professions, arrForProfessionSearch } from '../constants/textsForLanding';
-import { TEduObject, TSoftSkillTest } from '../types/componentsTypes';
-import { RequiredStarIcon } from '../ui-lib/icons';
+
 import {
   Details, Summary, AnimatedWrapper,
 } from '../ui-lib/widgets/Accordeon';
 import Themes from '../themes';
-import { TUser } from '../types/apiTypes';
+import { TAchievementNew, TUser } from '../types/apiTypes';
 
 const Form = styled.form`
   display: flex;
@@ -85,17 +77,21 @@ export type TTest = {
   result?: string,
   image?: string,
 };
-
+/// / в профайл абоут настроить отображение ачивок и открытие попапа если там картинку чел добавил то попап открывай
+/// добавить попап при согласие опубликовать профессию
+/// / сднлать поле софт скилл с подгрузеой я сейчас уже добовлял поле куда скиллы вписывать. добавил пропсы, поменять onChange там нужно и решить проблему с получением скиллов
 const ProfileV2: FC = () => {
   const { data, error } = useNewGetCurrentUserQuery();
-  const [updateUser] = useUpdateUserMutation();
+  const [updateUser, { status }] = useUpdateUserMutation();
   const [createEducationObj] = useCreateEducationMutation();
   const [updateEducationObject] = useUpdateEducationMutation();
   const [deleteEducationObject] = useDeleteEducationMutation();
   const [createTestObject] = useCreateTestMutation();
   const [updateTestObject] = useUpdateTestMutation();
   const [deleteTestObject] = useDeleteTestMutation();
-  console.log(data);
+  const [createAchievements] = useCreateAchieveMutation();
+  const [updateAchievement] = useUpdateAchieveMutation();
+  const [deleteAchievement] = useDeleteAchieveMutation();
   const { theme } = useSelector((state) => state.all);
   const navigate = useNavigate();
   const [userAvatar, setAvatar] = useState<string | ArrayBuffer>('');
@@ -138,6 +134,12 @@ const ProfileV2: FC = () => {
   /// profession
   const [softSkills, setSoftSkills] = useState<string[]>([]);
   const [hardSkills, setHardSkills] = useState<string[]>([]);
+  const [achievements, setAchievements] = useState<TAchievementNew[]>([
+    {
+      achievement_name: '',
+      description: '',
+      image: '',
+    }]);
   const {
     register,
     formState: { errors, isSubmitted },
@@ -154,6 +156,58 @@ const ProfileV2: FC = () => {
       [e.target.name]: filteredValue,
     });
   }, [socials]);
+  /// / reduct achieve object
+  const redactAchieveObject = useCallback((e: ChangeEvent<any>, index?: number) => {
+    const copyArr = structuredClone(achievements);
+    const changeObject = copyArr[index!];
+    switch (e.target.name) {
+      case 'achieveName': {
+        changeObject.achievement_name = e.target.value;
+        setAchievements(copyArr);
+        break;
+      }
+      case 'result': {
+        changeObject.description = e.target.value;
+        setAchievements(copyArr);
+        break;
+      }
+    }
+  }, [achievements]);
+
+  const addNewObjectToAchieves = useCallback(() => {
+    const copyArr = [...achievements];
+    copyArr.push({
+      achievement_name: '',
+      description: '',
+      image: '',
+    });
+    setAchievements(copyArr);
+  }, [achievements]);
+
+  const submitAchievements = useCallback(async (index: number) => {
+    try {
+      const currentSavedObject = achievements[index];
+      currentSavedObject.id
+        ? await updateAchievement({ achieve: currentSavedObject, userId: data?.id!, achieveId: currentSavedObject.id })
+        : await createAchievements({ achieve: currentSavedObject, userId: data?.id! });
+    } catch (err) {
+      console.log(err);
+    }
+  }, [achievements]);
+
+  const deleteObjInAchievements = useCallback(async (index: number, pos: number) => {
+    if (!index) {
+      const copyArr = structuredClone(achievements);
+      copyArr.splice(pos, 1);
+      setAchievements(copyArr);
+      return;
+    }
+    try {
+      await deleteAchievement({ userId: data?.id!, achieveId: index });
+    } catch (err) {
+      console.log(err);
+    }
+  }, [achievements]);
   /// redact test object
   const redactTestObject = useCallback((e: ChangeEvent<any>, index?: number) => {
     const copyArr = [...tests];
@@ -183,7 +237,13 @@ const ProfileV2: FC = () => {
     setTestToArr(copyArr);
   }, [tests]);
 
-  const deleteObjInTests = useCallback(async (index: number) => {
+  const deleteObjInTests = useCallback(async (index: number, pos: number) => {
+    if (!index) {
+      const copyArr = structuredClone(tests);
+      copyArr.splice(pos, 1);
+      setTestToArr(copyArr);
+      return;
+    }
     try {
       await deleteTestObject({ userId: data?.id!, eduId: index });
     } catch (err) {
@@ -235,7 +295,13 @@ const ProfileV2: FC = () => {
     setValuesOfEduObjectsArr(copyArr);
   }, [eduObjectsArr]);
 
-  const deleteObjectInEduArr = useCallback(async (index: number) => {
+  const deleteObjectInEduArr = useCallback(async (index: number, pos: number) => {
+    if (!index) {
+      const copyArr = structuredClone(eduObjectsArr);
+      copyArr.splice(pos, 1);
+      setValuesOfEduObjectsArr(copyArr);
+      return;
+    }
     try {
       await deleteEducationObject({ userId: data?.id!, eduId: index });
     } catch (err) {
@@ -322,23 +388,36 @@ const ProfileV2: FC = () => {
           toast.error('Что то пошло не так');
         }
         break;
+      } case 'achieve': {
+        const reader = new FileReader();
+        try {
+          reader.readAsDataURL(e.target.files![0]);
+          reader.addEventListener('load', () => {
+            const arrCopy = structuredClone(achievements);
+            const currentChangeObject = arrCopy[index!];
+            currentChangeObject.image = reader.result! as string;
+            setAchievements(arrCopy);
+          });
+        } catch (err) {
+          toast.error('Что то пошло не так');
+        }
+        break;
       }
     }
-  }, [tests, eduObjectsArr, userAvatar]);
+  }, [tests, eduObjectsArr, userAvatar, achievements]);
 
   const checkSocialError = () => [socials.git, socials.vk, socials.tg].every((el) => el === '');
   const checkSoftSkillsError = () => softSkills.length === 0;
   const checkHardSkillsError = () => hardSkills.length === 0;
 
   const submit = async (obj: TUser) => {
-    if (checkHardSkillsError() || checkSoftSkillsError() || checkSocialError()) return;
-    console.log(obj);
+    if (/* checkHardSkillsError() || checkSoftSkillsError() || */ checkSocialError()) return;
     try {
-      const user = await updateUser({
+      await updateUser({
 
         full_name: obj.full_name,
         avatar: userAvatar as string,
-
+        achievements,
         birth_date: obj.birth_date,
 
         address: obj.address,
@@ -351,11 +430,10 @@ const ProfileV2: FC = () => {
 
       }).unwrap();
 
-      user && navigate('/profile-info');
+      navigate('/profile-info');
     } catch (err: any) {
       console.log(err);
     }
-    navigate('/profile-info');
   };
 
   useEffect(() => {
@@ -384,6 +462,12 @@ const ProfileV2: FC = () => {
           image: '',
         },
       ] : (data.tests || []));
+      setAchievements(data?.achievements?.length === 0 ? [{
+        achievement_name: '',
+        description: '',
+        image: '',
+      },
+      ] : (data.achievements || []));
     }
   }, [data]);
 
@@ -464,7 +548,7 @@ const ProfileV2: FC = () => {
                 onChange={setSocialValue} />
               <Details open>
                 <Summary>Hard skills/опыт</Summary>
-                <InputWithTags
+                {/* <InputWithTags
                   hasError={checkHardSkillsError() && isSubmitted}
                   setTagToArray={setSkillInHardArr}
                   deleteTagFromArray={deleteSkillInHardSkillsArr}
@@ -474,7 +558,7 @@ const ProfileV2: FC = () => {
                   type='text'
                   placeholder='Напишите hard skill. Например: Figma'
                   maxLength={180}
-                  tags={hardSkills} />
+                  tags={hardSkills} /> */}
               </Details>
               <Details open>
                 <Summary>Образование</Summary>
@@ -493,7 +577,7 @@ const ProfileV2: FC = () => {
               <Details open>
                 <Summary>Soft skills</Summary>
                 <AnimatedWrapper>
-                  <InputWithTags
+                  {/* <InputWithTags
                     hasError={checkSoftSkillsError() && isSubmitted}
                     setTagToArray={setSkillInSoftArr}
                     deleteTagFromArray={deleteSkillInSoftSkillsArr}
@@ -503,7 +587,7 @@ const ProfileV2: FC = () => {
                     type='text'
                     placeholder='Напишите soft skill. Например: упорство'
                     maxLength={50}
-                    tags={softSkills || []} />
+                    tags={softSkills || []} /> */}
                   <TextAreaWithNoValidation
                     name='teamExp'
                     label='Опыт взаимодействия в команде'
@@ -528,6 +612,16 @@ const ProfileV2: FC = () => {
                     addOption={addNewObjectToTest} />
                 </AnimatedWrapper>
               </Details>
+              <Details open>
+                <Summary>Достижения</Summary>
+                <BlockForAchievements
+                  onChange={redactAchieveObject}
+                  addOption={addNewObjectToAchieves}
+                  achievementsList={achievements}
+                  fileOnChange={makeFileForDownload}
+                  deleteFunc={deleteObjInAchievements}
+                  submitAchievements={submitAchievements} />
+              </Details>
             </FieldSet>
             <UniversalButton
               id='submit'
@@ -547,3 +641,10 @@ const ProfileV2: FC = () => {
 };
 
 export default ProfileV2;
+
+/* onChange,
+  addOption,
+  achievementsList,
+  submitAchievements,
+  deleteFunc,
+  fileOnChange, */

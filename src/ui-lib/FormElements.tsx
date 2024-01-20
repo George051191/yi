@@ -9,12 +9,14 @@ import React, {
   ChangeEvent, FC, memo, useState,
 } from 'react';
 import {
-  FieldValues, UseFormRegister,
+  FieldValues,
+  UseFormRegister,
   Controller,
 } from 'react-hook-form';
 import styled from 'styled-components';
 import MaskedInput from 'react-text-mask';
 import createAutoCorrectedDatePipe from '../helpers/dateFunc';
+import { TSkill } from '../types/apiTypes';
 
 import {
   RequiredStarIcon,
@@ -534,8 +536,15 @@ const PushButton = styled.button`
   width: 100%;
 `;
 
+const ListOfSkills = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+`;
+
 export const InputWithTags: FC<{
   tags: string[];
+  downloadedValues: TSkill[],
   currentObjectIndex?: number,
   setTagToArray: (item: string, index: number) => void;
   label: string;
@@ -546,10 +555,13 @@ export const InputWithTags: FC<{
   type: string;
   maxLength: number;
   hasError: boolean;
+  setSkillValue:(skill: string) => void;
 }> = memo(({
   tags,
   setTagToArray,
   deleteTagFromArray,
+  downloadedValues,
+  setSkillValue,
   label,
   hasError,
   name,

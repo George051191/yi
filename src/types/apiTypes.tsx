@@ -22,6 +22,18 @@ export type TProfession = {
   soft_skills?: string[],
 };
 
+export type TAchievementNew = {
+  id?: number,
+  achievement_name?: string,
+  achievement_year?: string,
+  description?: string,
+  image?: string,
+};
+export type TSkill = {
+  id: number,
+  name: string,
+};
+
 export type TUser = {
   id?: number,
   first_name?: string,
@@ -43,6 +55,7 @@ export type TUser = {
   professions?: TProfession[],
   password?: string,
   re_password?: string,
+  achievements?: TAchievement[],
 };
 
 export type TUserCreation = Pick<TUser, 'id' | 'first_name' | 'last_name' | 'password' | 're_password' | 'email'>;

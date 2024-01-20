@@ -36,6 +36,7 @@ import {
   TEducation,
   TProfession,
   TTest,
+  TAchievementNew,
 } from '../types/apiTypes';
 
 /// ///
@@ -121,6 +122,8 @@ export const userApi = createApi({
       }),
       providesTags: ['user'],
     }),
+
+    /// all education
     createEducation: build.mutation<TEducation, { eduObj: TEducation, userId: number }>({
       query: (body) => ({
         url: `/api/users/${body.userId}/educations/`,
@@ -153,6 +156,7 @@ export const userApi = createApi({
       }),
       invalidatesTags: ['user'],
     }),
+    /// all tests
     createTest: build.mutation<TTest, { eduObj: TTest, userId: number }>({
       query: (body) => ({
         url: `/api/users/${body.userId}/tests/`,
@@ -186,18 +190,7 @@ export const userApi = createApi({
       }),
       invalidatesTags: ['user'],
     }),
-    /// for delete
-    /*  getCurrentUser: build.query<TUser, void>({
-      query: () => ({
-        url: GET_USER,
-        method: 'GET',
-        headers: {
-          Authorization: `Token ${jwt.get()}`,
-        },
-
-      }),
-      providesTags: ['user'],
-    }), */
+    /// all prof
     addProfession: build.mutation<TProfession, { prof:TProfession, userId:number }>({
       query: (body) => ({
         url: `/api/users/${body.userId}/professions/`,
@@ -234,6 +227,39 @@ export const userApi = createApi({
     deleteProfession: build.mutation<void, { userId:number, professionId:number }>({
       query: (body) => ({
         url: `/api/users/${body.userId}/professions/${body.professionId}/`,
+        method: 'DELETE',
+        headers: {
+          Authorization: `Token ${jwt.get()}`,
+        },
+      }),
+      invalidatesTags: ['user'],
+    }),
+    // all achieves
+    createAchieve: build.mutation<TAchievementNew, { achieve:TAchievementNew, userId:number }>({
+      query: (body) => ({
+        url: `/api/users/${body.userId}/achievements/`,
+        method: 'POST',
+        headers: {
+          Authorization: `Token ${jwt.get()}`,
+        },
+        body: body.achieve,
+      }),
+      invalidatesTags: ['user'],
+    }),
+    updateAchieve: build.mutation<TAchievementNew, { achieve:TAchievementNew, userId:number, achieveId:number }>({
+      query: (body) => ({
+        url: `/api/users/${body.userId}/achievements/${body.achieveId}/`,
+        method: 'PATCH',
+        headers: {
+          Authorization: `Token ${jwt.get()}`,
+        },
+        body: body.achieve,
+      }),
+      invalidatesTags: ['user'],
+    }),
+    deleteAchieve: build.mutation<void, { userId:number, achieveId:number }>({
+      query: (body) => ({
+        url: `/api/users/${body.userId}/achievements/${body.achieveId}/`,
         method: 'DELETE',
         headers: {
           Authorization: `Token ${jwt.get()}`,
@@ -648,6 +674,9 @@ export const {
   useGetProfessionWithIdQuery,
   useNewGetUserByIdQuery,
   useDeleteProfessionMutation,
+  useCreateAchieveMutation,
+  useUpdateAchieveMutation,
+  useDeleteAchieveMutation,
 } = userApi;
 
 export const {
@@ -682,6 +711,6 @@ export const {
   useDeleteAchievementMutation,
   useGetAchievementQuery,
   useGetCurrentFolderAchievementsQuery,
-  useUpdateAchievementMutation,
   useLazyGetCurrentFolderAchievementsQuery,
+  useUpdateAchievementMutation,
 } = achievementsApi;

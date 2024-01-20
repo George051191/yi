@@ -11,24 +11,20 @@ import { TravelsFontMixixn20 } from '../../constants/fontsConfigs';
 import { ButtonWithCross, UniversalButton } from '../RestyledButtons';
 import { TSoftSkillTest } from '../../types/componentsTypes';
 import { BlackDelIcon } from '../icons';
-import { TTest } from '../../types/apiTypes';
+import { TAchievementNew } from '../../types/apiTypes';
 
-const NewBlockForTests: FC<{
+const AchievementsBlock: FC<{
   onChange: (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index?: number) => void,
   fileOnChange: (e: ChangeEvent<HTMLInputElement>, index?: number) => void,
-  text: string,
   addOption: () => void,
-  testsList: TTest[],
-  inputName: string,
+  achievementsList: TAchievementNew[],
   deleteFunc: (index: number, pos: number) => void,
-  submitTestObject:(index: number) => void,
+  submitAchievements:(index: number) => void,
 }> = ({
   onChange,
   addOption,
-  testsList,
-  text,
-  submitTestObject,
-  inputName,
+  achievementsList,
+  submitAchievements,
   deleteFunc,
   fileOnChange,
 }) => {
@@ -37,28 +33,28 @@ const NewBlockForTests: FC<{
   return (
     <>
       <GridBox isOpen={isOpen}>
-        {testsList?.map((el, index) => (
+        {achievementsList?.map((el, index) => (
           <GridColumnElement>
             <BlackDelIcon
               onClick={(e:any) => { e.preventDefault(); deleteFunc(el.id!, index); }}
               style={{ position: 'absolute', top: '0px', right: '0px' }} />
             <InputWithNoValidation
-              name='testName'
-              label='Название теста'
+              name='achieveName'
+              label='Название достижения'
               type='text'
-              value={el.test_name}
+              value={el.achievement_name}
               onChange={(e) => onChange(e, index)}
-              placeholder='Введите название пройденного теста' />
+              placeholder='Введите название вашего достижения' />
             <TextAreaWithNoValidation
               name='result'
               onChange={(e) => onChange(e, index)}
-              label='Результат'
+              label='Расскажите про ваше достижение'
               maxLength={500}
-              value={el.result}
+              value={el.description}
               placeholder=''
               height={160} />
             <BlockForFileAdd
-              inputName={inputName}
+              inputName='achieve'
               headerText='Документ'
               fileName=''
               file={el.image || ''}
@@ -68,7 +64,7 @@ const NewBlockForTests: FC<{
               setFileToState={fileOnChange} />
             <UniversalButton
               type='button'
-              onClick={(e) => { e.preventDefault(); submitTestObject(index); }}
+              onClick={(e) => { e.preventDefault(); submitAchievements(index); }}
               textColor={Themes[theme].mainBg}
               backColor={Themes[theme].sliderColor}
               borderColor=''
@@ -79,25 +75,25 @@ const NewBlockForTests: FC<{
           </GridColumnElement>
         ))}
         {
-            testsList.length < 2
-            && (
-              <GridColumnElement style={{ width: '50%' }}>
-                <ButtonWithCross
-                  onClick={addOption}
-                  withText={false}
-                  height={526.86} />
-              </GridColumnElement>
-            )
-          }
+              achievementsList.length < 2
+              && (
+                <GridColumnElement style={{ width: '50%' }}>
+                  <ButtonWithCross
+                    onClick={addOption}
+                    withText={false}
+                    height={526.86} />
+                </GridColumnElement>
+              )
+            }
       </GridBox>
-      {isOpen && testsList.length >= 2 && (
-      <ButtonWithCross
-        onClick={addOption}
-        withText={false}
-        height={56} />
+      {isOpen && achievementsList.length >= 2 && (
+        <ButtonWithCross
+          onClick={addOption}
+          withText={false}
+          height={56} />
       )}
     </>
   );
 };
 
-export default memo(NewBlockForTests);
+export default memo(AchievementsBlock);
