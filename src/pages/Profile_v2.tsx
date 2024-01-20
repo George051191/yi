@@ -476,7 +476,7 @@ const ProfileV2: FC = () => {
     setExpirience(exp);
   };
   return (
-    !data ? <Skeleton1 />
+    data ? <Skeleton1 />
       : (
         <NewBaseSection title='Личный кабинет' goBackFunc={() => navigate('/')}>
           <NewAvatar
